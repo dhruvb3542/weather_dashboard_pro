@@ -1,53 +1,37 @@
-from flask import Flask, render_template, jsonify, request
-import datetime
+from flask import Flask, render_template, request, jsonify
+import requests
 
 app = Flask(__name__)
 
-# --- DATA ---
-inventory_db = [
-    {"id": 1, "name": "maths ", "stock": 14, "status": "In Stock", "last_update": "10:00 AM"},
-    {"id": 2, "name": "Microchips (A1)", "stock": 150, "status": "Stable", "last_update": "09:30 AM"},
-    {"id": 3, "name": "Lithium Packs", "stock": 8, "status": "Low Stock", "last_update": "11:15 AM"},
-]
+# REGISTER FOR A FREE KEY AT: https://openweathermap.org/api
+API_KEY = "fab14db5cc97348ac92028ef0952a669"
 
-# --- FRONTEND ROUTE ---
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# --- API ENDPOINTS ---
-@app.route('/api/inventory', methods=['GET'])
-def get_inventory():
-    return jsonify(inventory_db)
-
-@app.route('/api/stock-update', methods=['POST'])
-def update_stock():
-    data = request.json
-    item_id = data.get('id')
-    change = data.get('change')
+@app.route('/get_weather', methods=['POST'])
+def get_weather():
+    data = request.get_json()
+    city = data.get('city')
     
-    for item in inventory_db:
-        if item['id'] == item_id:
-            item['stock'] = max(0, item['stock'] + change)
-            item['last_update'] = datetime.datetime.now().strftime("%I:%M %p")
-            if item['stock'] < 10: item['status'] = "Critical"
-            elif item['stock'] < 25: item['status'] = "Low Stock"
-            else: item['status'] = "Stable"
-            return jsonify(item)
-    return jsonify({"error": "Not found"}), 404
+    if not city:
+        return jsonify({"error": "No city provided"}), 400
 
-# --- NEW BACKEND INTERACTIVE ROUTE ---
-@app.route('/admin/stats')
-def admin_stats():
-    total_stock = sum(item['stock'] for item in inventory_db)
-    low_stock_items = [item['name'] for item in inventory_db if item['stock'] < 10]
-    return {
-        "status": "Healthy",
-        "total_volume": total_stock,
-        "alerts": low_stock_items,
-        "timestamp": datetime.datetime.now().isoformat()
-    }
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+    
+    try:
+        response = requests.get(url)
+        weather_data = response.json()
+        
+        if response.status_code == 200:
+            return jsonify(weather_data)
+        else:
+            return jsonify({"error": "City not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-# --- START SERVER ---
 if __name__ == '__main__':
-    app.run(debug=True, port=8000)
+    import os
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host='0.0.0.0', port=port)

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyCast | Weather Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="cityInput" placeholder="Enter city name..." autocomplete="off">
+            <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+
+        <p id="error-msg">City not found. Try again!</p>
+
+        <div class="weather-card" id="weatherCard">
+            <div class="main-info">
+                <h2 id="cityName">Search a City</h2>
+                <p id="dateTime">---</p>
+                <div class="temp-container">
+                    <img id="weatherIcon" src="https://openweathermap.org/img/wn/10d@4x.png" alt="weather">
+                    <h1 id="temp">--°C</h1>
+                </div>
+                <h3 id="description">Waiting for input...</h3>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <div>
+                        <p>Humidity</p>
+                        <span id="humidity">0%</span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fa-solid fa-wind"></i>
+                    <div>
+                        <p>Wind</p>
+                        <span id="wind">0 km/h</span>
+                        <div id="weather-background-fx"></div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fa-solid fa-compress"></i>
+                    <div>
+                        <p>Pressure</p>
+                        <span id="pressure">0 hPa</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
